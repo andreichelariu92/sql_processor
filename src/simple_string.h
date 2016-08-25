@@ -38,8 +38,9 @@ const char* SS_Get(struct simple_string* s);
 
 /**
  * \brief SS_Append
- * Returns a new string that contains the value of the two
- * buffers.
+ * Appends to the first string the contents of the
+ * second string. If the first string is not big enough,
+ * it gets reallocated.
  *
  * \param s1
  * First string.
@@ -48,11 +49,10 @@ const char* SS_Get(struct simple_string* s);
  * Second string.
  *
  * \return
- * String that contains the two strings appended or NULL in case
- * of error.
+ * 0 in case of success.
  */
-struct simple_string* SS_Append(struct simple_string* s1,
-                                struct simple_string* s2);
+int SS_Append(struct simple_string* s1,
+              struct simple_string* s2);
 /**
  * \brief SS_Distroy
  * Distroys the given string and frees up all of the memory

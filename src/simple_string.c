@@ -59,26 +59,28 @@ const char* SS_Get(struct simple_string* s)
         }
 }
 
-struct simple_string* SS_Append(struct simple_string* s1,
-                                struct simple_string* s2)
+int SS_Append(struct simple_string* s1,
+              struct simple_string* s2)
 {
         const int totalSize = strlen(s1->buffer) +
                               strlen(s2->buffer) +
                               1; /* null terminator */
 
-        struct simple_string* output = allocateMemory(totalSize);
+        char* newBuff = malloc(totalSize * sizeof(char));
 
-        if (output) {
-                strcpy(output->buffer, s1->buffer);
-                strcat(output->buffer, s2->buffer);
+        if (newBuff) {
+                strcpy(newBuff, s1->buffer);
+                strcat(newBuff, s2->buffer);
+                free(s1->buffer);
 
-                output->capacity = totalSize;
-                output->size = totalSize;
-                return output;
+                s1->buffer = newBuff;
+                s1->capacity = totalSize;
+                s1->size = totalSize;
+                return 0;
         }
         else {
                 fprintf(stderr, "Error in SS_Append %d\n", errno);
-                return NULL;
+                return -1;
         }
 }
 
