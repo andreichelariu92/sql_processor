@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "sql_processor.h"
+#include "simple_string.h"
 
 #include <sqlite3.h>
 
@@ -26,13 +27,6 @@ static int SP_ConnectionCount = 0;
 static sqlite3* SP_Connections[MAX_CONNECTIONS];
 
 /************************ Private functions *************************************/
-static const char* appendString(const char** first,
-                                int* sizeFirst,
-                                const char* after)
-{
-        const int availableChars = *sizeFirst - (strlen(*first) + 1);
-
-}
 
 /************************ Public functions *************************************/
 int SP_Init()
@@ -71,33 +65,44 @@ int SP_CloseDb(int dbId)
         return sqlite3_close(db);
 }
 
-const char* SP_Exec(int dbId, const char *statement)
+const char* SP_Exec(int dbId, const char *command)
 {
         if (dbId < 0 || dbId >= MAX_CONNECTIONS) {
                 return 0;
         }
 
         /*compile the statement*/
-        sqlite3_stmt* compiledStatement;
+        sqlite3_stmt* statement;
         sqlite3_prepare_v2(SP_Connections[dbId],
-                           statement,
+                           command,
                            -1,/*go to the first NULL terminator*/
-                           &compiledStatement,
+                           &statement,
                            0);
-        if (compiledStatement == 0){
+        if (statement == 0){
                 return 0;
         }
 
         /*parse the result and build the response string*/
-        const int colCount = sqlite3_column_count(compiledStatement);
-        while (sqlite3_step(compiledStatement) == SQLITE_ROW) {
+        const int colCount = sqlite3_column_count(statement);
+        struct simple_string* result = SS_Create("");
+        while (sqlite3_step(statement) == SQLITE_ROW) {
                 int colIdx = 0;
                 for (colIdx = 0; colIdx < colCount; ++colIdx) {
-                        printf("%s ", sqlite3_column_text(compiledStatement, colIdx));
+                        printf("%s ", sqlite3_column_text(statement, colIdx));
+                        struct simple_string* colText =
+                                        SS_Create(sqlite3_column_text(statement, colIdx));
+                        SS_Append(result, colText);
+
+                        SS_Distroy(colText);
                 }
 
                 printf("\n");
+
+                struct simple_string* newLine = SS_Create("\n");
+                SS_Append(result, newLine);
+                SS_Distroy(newLine);
         }
 
+        printf("Final result %s\n", SS_Get(result));
         return 0;
 }

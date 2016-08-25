@@ -56,7 +56,7 @@ int SP_CloseDb(int dbId);
  * The id of the database connection on which the statement will be
  * executed.
  *
- * \param statement
+ * \param command
  * Pointer to a SQL statement stored as a C string. The client code
  * is responsible for the management of the C string.
  *
@@ -65,5 +65,5 @@ int SP_CloseDb(int dbId);
  * If there was an error, then 0 is returned. The client code is
  * responsible for the management of the returned string.
  */
-const char* SP_Exec(int dbId, const char* statement);
+const char* SP_Exec(int dbId, const char* command);
 #endif // SQL_PROCESSOR_H
