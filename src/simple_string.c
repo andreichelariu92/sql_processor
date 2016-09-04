@@ -29,6 +29,22 @@ struct simple_string* allocateMemory(size_t bufferSize)
 
 }
 
+char* appendStrings(const char* s1, const char* s2)
+{
+        const int totalSize = strlen(s1) +
+                              strlen(s2) +
+                              1 /*terminator character*/;
+
+        char* newBuff = malloc(totalSize * sizeof(char));
+
+        if (newBuff) {
+                strcpy(newBuff, s1);
+                strcat(newBuff, s2);
+        }
+
+        return newBuff;
+}
+
 /************************ Public functions *************************************/
 struct simple_string* SS_Create(const char* buffer)
 {
@@ -43,13 +59,13 @@ struct simple_string* SS_Create(const char* buffer)
                 return output;
         }
         else {
-                fprintf(stderr, "Eror creating string %d\n", errno);
+                fprintf(stderr, "Error creating string %d\n", errno);
                 return NULL;
         }
 
 }
 
-const char* SS_Get(struct simple_string* s)
+const char* SS_GetBuffer(struct simple_string* s)
 {
         if (s) {
                 return s->buffer;
@@ -59,27 +75,28 @@ const char* SS_Get(struct simple_string* s)
         }
 }
 
-int SS_Append(struct simple_string* s1,
-              struct simple_string* s2)
+const char* SS_CopyBuffer(struct simple_string* s)
 {
-        const int totalSize = strlen(s1->buffer) +
-                              strlen(s2->buffer) +
-                              1; /* null terminator */
+        return appendStrings(s->buffer, "");
+}
 
-        char* newBuff = malloc(totalSize * sizeof(char));
+int SS_Append(struct simple_string* s1,
+              const char* s2)
+{
+        char* appendBuff = appendStrings(s1->buffer, s2);
 
-        if (newBuff) {
-                strcpy(newBuff, s1->buffer);
-                strcat(newBuff, s2->buffer);
+        if (appendBuff) {
+                /*clear the old value of s1 and put the appended
+                 * string into it*/
                 free(s1->buffer);
+                s1->buffer = appendBuff;
+                s1->size = strlen(appendBuff);
+                s1->capacity = s1->size;
 
-                s1->buffer = newBuff;
-                s1->capacity = totalSize;
-                s1->size = totalSize;
                 return 0;
         }
         else {
-                fprintf(stderr, "Error in SS_Append %d\n", errno);
+                fprintf(stderr, "Error in SS_AppendC %d\n", errno);
                 return -1;
         }
 }

@@ -24,7 +24,7 @@ struct simple_string;
 struct simple_string* SS_Create(const char* buffer);
 
 /**
- * \brief SS_Get
+ * \brief SS_GetBuffer
  * Returns a pointer to the character array of the string.
  * Do not free this memory manually!
  *
@@ -34,25 +34,39 @@ struct simple_string* SS_Create(const char* buffer);
  * \return
  * Pointer to a constant char.
  */
-const char* SS_Get(struct simple_string* s);
+const char* SS_GetBuffer(struct simple_string* s);
+
+/**
+ * \brief SS_CopyBuffer
+ * Returns a copy of the internal character buffer of the string.
+ * The client code is responsible for the cleanup of the buffer!
+ *
+ * \param s
+ * Pointer to a simple_string structure.
+ *
+ * @return
+ * Pointer to the character buffer
+ */
+const char* SS_CopyBuffer(struct simple_string* s);
 
 /**
  * \brief SS_Append
  * Appends to the first string the contents of the
- * second string. If the first string is not big enough,
- * it gets reallocated.
+ * second C style string. If the first string is not
+ * big enough, it gets reallocated.
  *
  * \param s1
  * First string.
  *
  * \param s2
- * Second string.
+ * Second string. C style string.
  *
  * \return
  * 0 in case of success.
  */
 int SS_Append(struct simple_string* s1,
-              struct simple_string* s2);
+              const char* s2);
+
 /**
  * \brief SS_Distroy
  * Distroys the given string and frees up all of the memory
