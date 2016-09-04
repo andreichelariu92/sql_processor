@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "src/sql_processor.h"
 #include "src/simple_string.h"
@@ -8,19 +9,11 @@ int main()
         SP_Init();
         int db_id = SP_OpenDb("./test");
         printf("DB id = %d\n", db_id);
-        SP_Exec(db_id, "SELECT * FROM test;");
-        printf("%d\n", SP_CloseDb(2));
+        const char* res = SP_Exec(db_id, "SELECT * FROM lost_opportunities o WHERE o.day=\"2016-09-03\"");
 
-        /*
-        struct simple_string* s1 = SS_Create("Salut ");
-        struct simple_string* s2 = SS_Create("Andrei");
+        printf("QUERY RESULT\n %s", res);
 
-        SS_Append(s1, s2);
-        printf("%s\n", SS_Get(s1));
-
-
-        SS_Distroy(s1);
-        SS_Distroy(s2);
-        */
+        free(res);
+        SP_CloseDb(db_id);
         return 0;
 }
