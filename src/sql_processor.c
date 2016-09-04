@@ -67,6 +67,8 @@ int SP_CloseDb(int dbId)
 
 const char* SP_Exec(int dbId, const char *command)
 {
+        const char* ret = 0;
+
         if (dbId < 0 || dbId >= MAX_CONNECTIONS) {
                 return 0;
         }
@@ -78,7 +80,7 @@ const char* SP_Exec(int dbId, const char *command)
                            -1,/*go to the first NULL terminator*/
                            &statement,
                            0);
-        if (statement == 0){
+        if (statement == 0) {
                 return 0;
         }
 
@@ -86,23 +88,19 @@ const char* SP_Exec(int dbId, const char *command)
         const int colCount = sqlite3_column_count(statement);
         struct simple_string* result = SS_Create("");
         while (sqlite3_step(statement) == SQLITE_ROW) {
-                int colIdx = 0;
-                for (colIdx = 0; colIdx < colCount; ++colIdx) {
-                        printf("%s ", sqlite3_column_text(statement, colIdx));
-                        struct simple_string* colText =
-                                        SS_Create(sqlite3_column_text(statement, colIdx));
-                        SS_Append(result, colText);
+            int colIdx = 0;
+            for (; colIdx < colCount; ++colIdx) {
+                SS_Append(result, sqlite3_column_text(statement, colIdx));
+            }
 
-                        SS_Distroy(colText);
-                }
-
-                printf("\n");
-
-                struct simple_string* newLine = SS_Create("\n");
-                SS_Append(result, newLine);
-                SS_Distroy(newLine);
+            SS_Append(result, "\n");
         }
 
-        printf("Final result %s\n", SS_Get(result));
-        return 0;
+        ret = SS_CopyBuffer(result);
+
+        /*cleanup*/
+        SS_Distroy(result);
+        sqlite3_finalize(statement);
+
+        return ret;
 }
